@@ -24,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { z } from "zod";
 
 export const formSchema = z.object({
@@ -65,22 +66,47 @@ function AddNewInterview() {
 
       const result = await chatSession.sendMessage(inputPrompt);
 
-      const parseResult = JSON.parse(
-        result.response.text().replace("```json", "").replace("```", "")
-      );
-      console.log("parseResult : ", parseResult);
-      const userInfo: UserDataType = {
-        userId: user!.id,
-        userName: user!.fullName!,
-        profilePic: user!.imageUrl,
-      };
+      if (!result || !result.response) {
+        toast.error("Something went wrong..!! Please try again.");
+        return;
+      }
 
-      const API = await fetchPost({ parseResult, userInfo });
-      console.log(API);
+      let parseResult;
+      try {
+        const textResponse = await result.response.text();
+        const formattedResponse = textResponse
+          .replace("```json", "")
+          .replace("```", "");
+        parseResult = JSON.parse(formattedResponse);
+      } catch (jsonError) {
+        console.error("Error parsing AI response:", jsonError);
+        toast.error("Failed to parse AI response. Please try again.");
+        return;
+      }
+
+      if (parseResult) {
+        const userInfo: UserDataType = {
+          userId: user!.id,
+          userName: user!.fullName!,
+          profilePic: user!.imageUrl,
+        };
+
+        try {
+          const apiResponse = await fetchPost({ parseResult, userInfo });
+          toast.success(apiResponse.message);
+        } catch (apiError) {
+          console.error("Error sending data to API:", apiError);
+          toast.error("Failed to send data. Please try again.");
+        }
+      } else {
+        toast.error("Invalid AI response. Please try again.");
+      }
     } catch (error) {
-      throw new Error("error while fetching AI API");
+      console.error("Error while fetching AI API:", error);
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
+      setOpenDailog(false);
     }
   };
 
