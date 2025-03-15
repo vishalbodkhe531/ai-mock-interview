@@ -1,6 +1,4 @@
 "use client";
-import { useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,7 +17,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { fetchPost, UserDataType } from "@/lib/user.action";
+import { chatSession } from "@/utils/gemeniAIMode";
+import { useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -40,6 +43,9 @@ type formType = {
 
 function AddNewInterview() {
   const [openDailog, setOpenDailog] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const { user } = useUser();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -52,8 +58,30 @@ function AddNewInterview() {
 
   const { handleSubmit, reset } = form;
 
-  const onSubmit = (data: formType) => {
-    console.log(data);
+  const onSubmit = async (data: formType) => {
+    setLoading(true);
+    try {
+      const inputPrompt = `Job Position : ${data.role} , Job Skills :  ${data.experience} , Years of experience : ${data.experience} ,  Dependes on this information please give me 7 interview quetion with answer in JSON format , give me quetions and answer related to user Job Skills as field in JSON`;
+
+      const result = await chatSession.sendMessage(inputPrompt);
+
+      const parseResult = JSON.parse(
+        result.response.text().replace("```json", "").replace("```", "")
+      );
+      console.log("parseResult : ", parseResult);
+      const userInfo: UserDataType = {
+        userId: user!.id,
+        userName: user!.fullName!,
+        profilePic: user!.imageUrl,
+      };
+
+      const API = await fetchPost({ parseResult, userInfo });
+      console.log(API);
+    } catch (error) {
+      throw new Error("error while fetching AI API");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -140,8 +168,19 @@ function AddNewInterview() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="cursor-pointer">
-                  Start Interview
+                <Button
+                  type="submit"
+                  className="cursor-pointer"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="animate-spin" />
+                      Generating form AI...
+                    </>
+                  ) : (
+                    "Start Interview"
+                  )}
                 </Button>
               </div>
             </form>
