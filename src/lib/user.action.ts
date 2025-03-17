@@ -1,16 +1,6 @@
 "use client";
+import { PropesType } from "@/types/user.types";
 import axios from "axios";
-
-export interface UserDataType {
-  userId: string;
-  userName: string;
-  profilePic: string;
-}
-
-interface PropesType {
-  parseResult: any[];
-  userInfo: UserDataType;
-}
 
 export async function fetchPost({ parseResult, userInfo }: PropesType) {
   console.log("userInfo : ", userInfo);

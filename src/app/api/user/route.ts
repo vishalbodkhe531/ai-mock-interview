@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     });
 
     if (isUserExist) {
-      await prisma.mockInterview.create({
+      const mockResponse = await prisma.mockInterview.create({
         data: {
           jsonMockResp: interview_questions,
           userId,
@@ -25,6 +25,7 @@ export async function POST(req: Request) {
 
       return NextResponse.json({
         sucess: true,
+        mockId: mockResponse.id,
         message: "Data successfully store into the database",
       });
     }
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
       },
     });
 
-    await prisma.mockInterview.create({
+    const mockResponse = await prisma.mockInterview.create({
       data: {
         jsonMockResp: interview_questions,
         userId,
@@ -46,6 +47,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       sucess: true,
+      mockId: mockResponse.id,
       message: "Data successfully store into the database",
     });
   } catch (error) {

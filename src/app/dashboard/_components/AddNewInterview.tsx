@@ -17,11 +17,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { fetchPost, UserDataType } from "@/lib/user.action";
+import { fetchPost } from "@/lib/user.action";
+import { formType, UserDataType } from "@/types/user.types";
 import { chatSession } from "@/utils/gemeniAIMode";
 import { useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -36,15 +38,11 @@ export const formSchema = z.object({
     .refine((val) => parseInt(val) >= 0, "Experience cannot be negative"),
 });
 
-type formType = {
-  role: string;
-  jobDesc: string;
-  experience: string;
-};
-
 function AddNewInterview() {
   const [openDailog, setOpenDailog] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const { user } = useUser();
 
@@ -93,7 +91,9 @@ function AddNewInterview() {
 
         try {
           const apiResponse = await fetchPost({ parseResult, userInfo });
+          console.log(apiResponse);
           toast.success(apiResponse.message);
+          router.push(`/dashboard/interview/${apiResponse.mockId}`);
         } catch (apiError) {
           console.error("Error sending data to API:", apiError);
           toast.error("Failed to send data. Please try again.");

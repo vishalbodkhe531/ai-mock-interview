@@ -15,7 +15,7 @@ model User {
 }
 
 model MockInterview {
-  id           Int  @id @default(autoincrement())
+  id           String  @id @default(cuid()) 
   jsonMockResp Json
   userId       String  
   user         User @relation(fields: [userId], references: [uid], onDelete: Cascade)
