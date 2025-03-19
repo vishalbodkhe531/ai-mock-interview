@@ -2,7 +2,7 @@
 import { PropesType } from "@/types/user.types";
 import axios from "axios";
 
-export async function fetchPost({ parseResult, userInfo }: PropesType) {
+export async function storeData({ parseResult, userInfo }: PropesType) {
   console.log("userInfo : ", userInfo);
   const response = await axios.post(
     "http://localhost:3000/api/user",
@@ -13,5 +13,11 @@ export async function fetchPost({ parseResult, userInfo }: PropesType) {
       },
     }
   );
+  return response.data;
+}
+
+export async function fetchData({ id }: { id: string }) {
+  console.log("userInfo : ", id);
+  const response = await axios.get(`http://localhost:3000/api/user/${id}`);
   return response.data;
 }

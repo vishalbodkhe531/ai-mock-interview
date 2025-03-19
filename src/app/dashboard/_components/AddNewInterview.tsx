@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { fetchPost } from "@/lib/user.action";
+import { storeData } from "@/lib/user.action";
 import { formType, UserDataType } from "@/types/user.types";
 import { chatSession } from "@/utils/gemeniAIMode";
 import { useUser } from "@clerk/nextjs";
@@ -90,7 +90,7 @@ function AddNewInterview() {
         };
 
         try {
-          const apiResponse = await fetchPost({ parseResult, userInfo });
+          const apiResponse = await storeData({ parseResult, userInfo });
           console.log(apiResponse);
           toast.success(apiResponse.message);
           router.push(`/dashboard/interview/${apiResponse.mockId}`);
