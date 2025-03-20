@@ -9,8 +9,6 @@ export async function GET(
   try {
     const { id } = await params;
 
-    console.log(id);
-
     if (!id) {
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
