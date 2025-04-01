@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { fetchData } from "@/lib/user.action";
 import { Lightbulb, WebcamIcon } from "lucide-react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Webcam from "react-webcam";
@@ -12,19 +13,8 @@ function Interview() {
 
   const [webCamEnable, setWebCamEnable] = useState(false);
 
-  useEffect(() => {
-    if (params.interviewId) {
-      const fetchAPI = async () => {
-        const res = await fetchData({ id: params.interviewId as string });
-        console.log("res : ", res);
-      };
-      fetchAPI();
-    }
-  }, [params.interviewId]);
-
   return (
     <div className="mt-10  p-5">
-      {/* <div className=""> */}
       <h1 className="text-center">Let get started</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 mt-10 px-5 gap-6 ">
         <div className="flex h-[65%] flex-col gap-2 text-sm border-2 bg-yellow-100 text-slate-600 font-semibold p-4 rounded-lg">
@@ -57,16 +47,20 @@ function Interview() {
               </Button>
             </div>
           ) : (
-            // <div className=" flex justify-center flex-col items-center">
             <div className="flex flex-col gap-2 rounded-lg">
               <WebcamIcon className="h-64 border-2  p-5 rounded-xl w-full text-[10rem]" />
               <Button
                 onClick={() => setWebCamEnable(true)}
                 className="cursor-pointer"
+                variant={"link"}
               >
                 Enable Web Cam and Microphone
               </Button>
-              <Button className="cursor-pointer">Start Interview</Button>
+              <Link href={`/dashboard/interview/${params.interviewId}/start`}>
+                <Button className="w-full cursor-pointer">
+                  Start Interview
+                </Button>
+              </Link>
             </div>
           )}
         </div>
