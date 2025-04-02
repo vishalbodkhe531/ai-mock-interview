@@ -1,16 +1,14 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { fetchData } from "@/lib/user.action";
 import { Lightbulb, WebcamIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import Webcam from "react-webcam";
 
 function Interview() {
   const params = useParams();
-
   const [webCamEnable, setWebCamEnable] = useState(false);
 
   return (
@@ -57,7 +55,7 @@ function Interview() {
                 Enable Web Cam and Microphone
               </Button>
               <Link href={`/dashboard/interview/${params.interviewId}/start`}>
-                <Button className="w-full cursor-pointer">
+                <Button className="w-full cursor-pointer bg-red-400">
                   Start Interview
                 </Button>
               </Link>
