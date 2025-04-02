@@ -1,10 +1,11 @@
 "use client";
 
 import { fetchData } from "@/lib/user.action";
-import { Lightbulb, LightbulbOffIcon } from "lucide-react";
+import { Lightbulb, LightbulbOffIcon, Volume2, VolumeOff } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export type interviewDataType = {
   question: string;
@@ -13,93 +14,113 @@ export type interviewDataType = {
 
 function QuestionSection() {
   const params = useParams();
-  const { theme } = useTheme();
   const [interviewData, setInterviewData] = useState<interviewDataType[]>([]);
   const [activeQuestionIdx, setActiveQuestionIdx] = useState(0);
-  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [hint, setHint] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (!params.interviewId) return;
 
-  useEffect(() => {
-    if (params.interviewId) {
-      const fetchAPI = async () => {
-        try {
-          setLoading(true);
-          const res = await fetchData({ id: params.interviewId as string });
-          if (res?.result?.jsonMockResp) {
-            setInterviewData(res.result.jsonMockResp);
-          }
-        } catch (error) {
-          console.error("Error fetching interview data:", error);
-        } finally {
-          setLoading(false);
+    const fetchAPI = async () => {
+      try {
+        setLoading(true);
+        const res = await fetchData({ id: params.interviewId as string });
+        if (res?.result?.jsonMockResp) {
+          setInterviewData(res.result.jsonMockResp);
         }
-      };
-      fetchAPI();
-    }
+      } catch (error) {
+        console.error("Error fetching interview data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAPI();
   }, [params.interviewId]);
 
-  const borderClass = !mounted
-    ? "border-gray-300"
-    : theme === "dark"
-    ? "border-gray-300"
-    : "border-gray-700";
+  const textToSpeech = useCallback((text: string) => {
+    if (!("speechSynthesis" in window)) {
+      toast.error("Speech synthesis not supported");
+      return;
+    }
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.onend = () => setIsSpeaking(false);
+    speechSynthesis.speak(speech);
+    setIsSpeaking(true);
+  }, []);
 
   if (loading) {
     return <div className="text-center mt-20">Loading...</div>;
   }
 
   return (
-    <div className="flex flex-col mt-10 shadow-2xl my-7 border-r-2 p-10">
-      <div
-        className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 text-center border p-5 md:p-7 rounded-lg ${borderClass}`}
-      >
-        {interviewData?.map((_, idx) => (
+    <div className="flex flex-col mt-10 shadow-2xl my-7 border-r-2 p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 text-center border p-5 md:p-7 rounded-lg">
+        {interviewData.map((_, idx) => (
           <div
-            className={`cursor-pointer rounded-xl py-1 px-4 border flex flex-col justify-center items-center text-center ${
-              activeQuestionIdx === idx
-                ? mounted && theme === "dark"
-                  ? "bg-slate-200 text-black border-white"
-                  : "bg-gray-300 text-black"
-                : mounted && theme === "dark"
-                ? "border-gray-500"
-                : "border-gray-400"
-            }`}
             key={idx}
-            onClick={() => setActiveQuestionIdx(idx)}
+            className={`cursor-pointer rounded-xl py-1 px-4 border  flex flex-col justify-center items-center text-center 
+              ${
+                activeQuestionIdx === idx
+                  ? "bg-gray-300 text-black border-white"
+                  : "border-gray-400"
+              }`}
+            onClick={() => {
+              speechSynthesis.cancel();
+              setActiveQuestionIdx(idx);
+            }}
           >
             <div className="flex">
-              Question
-              <span className="font-semibold ml-1">{idx + 1}</span>
+              Question <span className="font-semibold ml-1  ">{idx + 1}</span>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Display question only if data is available */}
       {interviewData.length > 0 && (
-        <div className="mt-10 font-medium">
-          {interviewData[activeQuestionIdx]?.question}
-          <div className="mt-10">
-            {!hint ? (
-              <div className="flex justify-center w-full">
-                <Lightbulb onClick={() => setHint(true)} />
-              </div>
+        <div className="mt-3 font-medium">
+          <div className="flex justify-end my-4">
+            {isSpeaking ? (
+              <VolumeOff
+                size={37}
+                className="cursor-pointer hover:bg-slate-200 p-2 rounded-full"
+                onClick={() => {
+                  setIsSpeaking(false);
+                  speechSynthesis.cancel();
+                }}
+              />
             ) : (
-              <div>
-                <div className="flex justify-center">
-                  <LightbulbOffIcon onClick={() => setHint(false)} />
-                </div>
-                <div className="bg-yellow-100 mt-4 p-2">
-                  {interviewData[activeQuestionIdx]?.answer}
-                </div>
-              </div>
+              <Volume2
+                size={37}
+                className="cursor-pointer hover:bg-slate-200 p-2 rounded-full"
+                onClick={() =>
+                  textToSpeech(interviewData[activeQuestionIdx].question)
+                }
+              />
+            )}
+            {hint ? (
+              <LightbulbOffIcon
+                size={37}
+                className="cursor-pointer hover:bg-slate-200 p-2 rounded-full"
+                onClick={() => setHint(false)}
+              />
+            ) : (
+              <Lightbulb
+                size={37}
+                className="cursor-pointer hover:bg-slate-200 p-2 rounded-full"
+                onClick={() => setHint(true)}
+              />
             )}
           </div>
+
+          <p>{interviewData[activeQuestionIdx]?.question}</p>
+          {hint && (
+            <div className="bg-yellow-100 mt-4 p-2 rounded-lg">
+              {interviewData[activeQuestionIdx]?.answer}
+            </div>
+          )}
         </div>
       )}
     </div>
