@@ -38,7 +38,6 @@ function Header() {
           { href: "/dashboard", label: "Dashboard" },
           { href: "/questions", label: "Questions" },
           { href: "/upgrade", label: "Upgrade" },
-          { href: "/works", label: "How it Works ?" },
         ].map(({ href, label }) => (
           <Link href={href} key={href}>
             <li

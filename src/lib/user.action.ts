@@ -16,7 +16,6 @@ export async function storeData({ parseResult, userInfo }: PropesType) {
 }
 
 export async function fetchData({ id }: { id: string }) {
-  console.log("userInfo : ", id);
   const response = await axios.get(`http://localhost:3000/api/user/${id}`);
   return response.data;
 }

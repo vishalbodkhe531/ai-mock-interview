@@ -89,6 +89,12 @@ function AddNewInterview() {
           profilePic: user!.imageUrl,
         };
 
+        const isCompleted = false;
+
+        parseResult = Array.isArray(parseResult)
+          ? [...parseResult.map((item: any) => ({ ...item, isCompleted }))]
+          : [];
+
         try {
           const apiResponse = await storeData({ parseResult, userInfo });
           console.log(apiResponse);
@@ -197,12 +203,13 @@ function AddNewInterview() {
                 <Button
                   type="submit"
                   className="cursor-pointer"
+                  variant={"outline"}
                   disabled={loading}
                 >
                   {loading ? (
                     <>
                       <Loader2 className="animate-spin" />
-                      Generating form AI...
+                      Generating from the AI...
                     </>
                   ) : (
                     "Start Interview"

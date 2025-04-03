@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
-// Dynamically import the speech-to-text hook
 const SpeechToTextComponent = dynamic(
   () => {
     return import("./SpeechToTextComponent");
@@ -23,10 +22,10 @@ const SpeechToTextComponent = dynamic(
   }
 );
 
-const RecordAndAnsSection = () => {
+const RecordAndAnsSection = ({ currentQuestion }: { currentQuestion: string }) => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <SpeechToTextComponent />
+      <SpeechToTextComponent currentQuestion={currentQuestion} />
     </Suspense>
   );
 };

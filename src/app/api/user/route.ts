@@ -7,7 +7,8 @@ export async function POST(req: Request) {
   try {
     const { parseResult, userInfo } = await req.json();
     const { userId, userName, profilePic } = userInfo;
-    const { interview_questions } = parseResult;
+
+    console.log("parseResult : ", parseResult);
 
     const isUserExist = await prisma.user.findUnique({
       where: {
@@ -18,7 +19,7 @@ export async function POST(req: Request) {
     if (isUserExist) {
       const mockResponse = await prisma.mockInterview.create({
         data: {
-          jsonMockResp: interview_questions,
+          jsonMockResp: parseResult,
           userId,
         },
       });
@@ -40,10 +41,12 @@ export async function POST(req: Request) {
 
     const mockResponse = await prisma.mockInterview.create({
       data: {
-        jsonMockResp: interview_questions,
+        jsonMockResp: parseResult,
         userId,
       },
     });
+
+    console.log("mockResponse : ", mockResponse);
 
     return NextResponse.json({
       sucess: true,
@@ -57,5 +60,3 @@ export async function POST(req: Request) {
     );
   }
 }
-
-

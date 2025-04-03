@@ -10,7 +10,13 @@ export interface UserDataType {
   profilePic: string;
 }
 
+interface ParseResultType {
+  question: string;
+  isCompleted: boolean ;
+  answer: string;
+}
+
 export interface PropesType {
-  parseResult: any[];
+  parseResult: ParseResultType[];
   userInfo: UserDataType;
 }

@@ -2,7 +2,6 @@
 
 import { fetchData } from "@/lib/user.action";
 import { Lightbulb, LightbulbOffIcon, Volume2, VolumeOff } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -12,7 +11,11 @@ export type interviewDataType = {
   answer: string;
 };
 
-function QuestionSection() {
+function QuestionSection({
+  setCurrentQuestion,
+}: {
+  setCurrentQuestion: (question: string) => void;
+}) {
   const params = useParams();
   const [interviewData, setInterviewData] = useState<interviewDataType[]>([]);
   const [activeQuestionIdx, setActiveQuestionIdx] = useState(0);
@@ -40,6 +43,8 @@ function QuestionSection() {
     fetchAPI();
   }, [params.interviewId]);
 
+  console.log("interviewData : ", interviewData); 
+
   const textToSpeech = useCallback((text: string) => {
     if (!("speechSynthesis" in window)) {
       toast.error("Speech synthesis not supported");
@@ -56,9 +61,9 @@ function QuestionSection() {
   }
 
   return (
-    <div className="flex flex-col mt-10 shadow-2xl my-7 border-r-2 p-6">
+    <div className="flex flex-col mt-10 shadow-2xl my-7 border-r-2 p-6 ">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 text-center border p-5 md:p-7 rounded-lg">
-        {interviewData.map((_, idx) => (
+        {interviewData.map((item, idx) => (
           <div
             key={idx}
             className={`cursor-pointer rounded-xl py-1 px-4 border  flex flex-col justify-center items-center text-center 
@@ -69,6 +74,7 @@ function QuestionSection() {
               }`}
             onClick={() => {
               speechSynthesis.cancel();
+              setCurrentQuestion(item.question);
               setActiveQuestionIdx(idx);
             }}
           >
@@ -80,7 +86,7 @@ function QuestionSection() {
       </div>
 
       {interviewData.length > 0 && (
-        <div className="mt-3 font-medium">
+        <div className="mt-3 font-medium ">
           <div className="flex justify-end my-4">
             {isSpeaking ? (
               <VolumeOff
@@ -116,8 +122,9 @@ function QuestionSection() {
           </div>
 
           <p>{interviewData[activeQuestionIdx]?.question}</p>
+
           {hint && (
-            <div className="bg-yellow-100 mt-4 p-2 rounded-lg">
+            <div className="bg-yellow-100 mt-4  rounded-lg">
               {interviewData[activeQuestionIdx]?.answer}
             </div>
           )}

@@ -1,12 +1,18 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { chatSession } from "@/utils/gemeniAIMode";
 import { Mic } from "lucide-react";
 import { useEffect, useState } from "react";
 import useSpeechToText from "react-hook-speech-to-text";
+import toast from "react-hot-toast";
 
-const SpeechToTextComponent = () => {
+const SpeechToTextComponent = ({
+  currentQuestion,
+}: {
+  currentQuestion: string;
+}) => {
   const [userAns, setUserAns] = useState("");
-  const [transcripts, setTranscripts] = useState<string[]>([]);
+  const [_, setTranscripts] = useState<string[]>([]);
 
   const {
     error,
@@ -53,8 +59,36 @@ const SpeechToTextComponent = () => {
     }
   };
 
-  const handleClickAns = () => {
+  const handleClickAns = async () => {
     console.log("Recorded Answer:", userAns);
+    setUserAns("");
+    results.length = 0;
+    if (userAns.length < 10) {
+      return toast.error("Speak atleast 10 words");
+    }
+
+    const feedbackPromt = `Question ${currentQuestion} : ${userAns}, Depen on the question and answer, give me the feedback or rating out of 10 on the answer as area of improvement or good points in just 2-3 lines to improve the answer in JSON format with rating field and feedback field`;
+
+    const result = await chatSession.sendMessage(feedbackPromt);
+
+    if (!result || !result.response) {
+      toast.error("Something went wrong..!! Please try again.");
+      return;
+    }
+
+    let parseResult;
+    try {
+      const textResponse = await result.response.text();
+      const formattedResponse = textResponse
+        .replace("```json", "")
+        .replace("```", "");
+      parseResult = JSON.parse(formattedResponse);
+      console.log("parseResult : ", parseResult);
+    } catch (jsonError) {
+      console.error("Error parsing AI response:", jsonError);
+      toast.error("Failed to parse AI response. Please try again.");
+      return;
+    }
   };
 
   if (error) {

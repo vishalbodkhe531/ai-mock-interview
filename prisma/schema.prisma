@@ -15,10 +15,9 @@ model User {
 }
 
 model MockInterview {
-  id           String  @id @default(cuid()) 
+  id           String    @id @default(cuid()) 
   jsonMockResp Json
   userId       String  
-  user         User @relation(fields: [userId], references: [uid], onDelete: Cascade)
-
+  user         User      @relation(fields: [userId], references: [uid], onDelete: Cascade)
   @@map("mockInterview")
 }
