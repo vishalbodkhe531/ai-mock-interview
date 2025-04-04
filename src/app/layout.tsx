@@ -27,10 +27,12 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased select-none `}
-        >
+      <html
+        lang="en"
+        suppressHydrationWarning
+        className=" overflow-y-scroll  scrollbar-hidden"
+      >
+        <body>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -40,7 +42,7 @@ export default function RootLayout({
             <header className="flex justify-between items-center p-4 gap-4 h-16">
               <Header />
             </header>
-            <div className="mx-5 md:mc-20 lg:mx-36">{children}</div>
+            <div className="mx-5 md:mc-20 lg:mx-36 ">{children}</div>
           </ThemeProvider>
         </body>
       </html>

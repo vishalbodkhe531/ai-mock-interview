@@ -1,27 +1,26 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { fetchData } from "@/lib/user.action";
+import { ParseResultType } from "@/types/user.types";
 import { Lightbulb, LightbulbOffIcon, Volume2, VolumeOff } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-export type interviewDataType = {
-  question: string;
-  answer: string;
-};
-
 function QuestionSection({
   setCurrentQuestion,
 }: {
-  setCurrentQuestion: (question: string) => void;
+  setCurrentQuestion: (item: ParseResultType) => void;
 }) {
   const params = useParams();
-  const [interviewData, setInterviewData] = useState<interviewDataType[]>([]);
+  const [interviewData, setInterviewData] = useState<ParseResultType[]>([]);
   const [activeQuestionIdx, setActiveQuestionIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [hint, setHint] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  console.log(interviewData);
 
   useEffect(() => {
     if (!params.interviewId) return;
@@ -30,8 +29,10 @@ function QuestionSection({
       try {
         setLoading(true);
         const res = await fetchData({ id: params.interviewId as string });
-        if (res?.result?.jsonMockResp) {
-          setInterviewData(res.result.jsonMockResp);
+        const { jsonMockResp } = res?.result;
+        if (jsonMockResp) {
+          setInterviewData(jsonMockResp);
+          setCurrentQuestion(jsonMockResp[0]);
         }
       } catch (error) {
         console.error("Error fetching interview data:", error);
@@ -42,8 +43,6 @@ function QuestionSection({
 
     fetchAPI();
   }, [params.interviewId]);
-
-  console.log("interviewData : ", interviewData); 
 
   const textToSpeech = useCallback((text: string) => {
     if (!("speechSynthesis" in window)) {
@@ -62,24 +61,38 @@ function QuestionSection({
 
   return (
     <div className="flex flex-col mt-10 shadow-2xl my-7 border-r-2 p-6 ">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 text-center border p-5 md:p-7 rounded-lg">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 text-center border p-5 md:p-7 rounded-lg ">
         {interviewData.map((item, idx) => (
           <div
             key={idx}
-            className={`cursor-pointer rounded-xl py-1 px-4 border  flex flex-col justify-center items-center text-center 
-              ${
-                activeQuestionIdx === idx
-                  ? "bg-gray-300 text-black border-white"
-                  : "border-gray-400"
-              }`}
+            className={`cursor-pointer rounded-xl  flex flex-col justify-center items-center text-center 
+            `}
             onClick={() => {
               speechSynthesis.cancel();
-              setCurrentQuestion(item.question);
+              setCurrentQuestion(item);
               setActiveQuestionIdx(idx);
             }}
           >
             <div className="flex">
-              Question <span className="font-semibold ml-1  ">{idx + 1}</span>
+              {item.isCompleted ? (
+                <>
+                  <Button className="bg-green-700 text-white">
+                    Question {idx + 1}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    className={`cursor-pointer ${
+                      activeQuestionIdx === idx
+                        ? "bg-gray-600  text-white "
+                        : "border-gray-300"
+                    }`}
+                  >
+                    Question {idx + 1}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         ))}
@@ -121,7 +134,10 @@ function QuestionSection({
             )}
           </div>
 
-          <p>{interviewData[activeQuestionIdx]?.question}</p>
+          <p>
+            {!interviewData[activeQuestionIdx].isCompleted &&
+              interviewData[activeQuestionIdx]?.question}
+          </p>
 
           {hint && (
             <div className="bg-yellow-100 mt-4  rounded-lg">

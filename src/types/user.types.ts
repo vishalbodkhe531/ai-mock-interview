@@ -10,9 +10,9 @@ export interface UserDataType {
   profilePic: string;
 }
 
-interface ParseResultType {
+export interface ParseResultType {
   question: string;
-  isCompleted: boolean ;
+  isCompleted: boolean;
   answer: string;
 }
 

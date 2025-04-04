@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { ParseResultType } from "@/types/user.types";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
@@ -22,7 +23,11 @@ const SpeechToTextComponent = dynamic(
   }
 );
 
-const RecordAndAnsSection = ({ currentQuestion }: { currentQuestion: string }) => {
+const RecordAndAnsSection = ({
+  currentQuestion,
+}: {
+  currentQuestion?: ParseResultType;
+}) => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <SpeechToTextComponent currentQuestion={currentQuestion} />

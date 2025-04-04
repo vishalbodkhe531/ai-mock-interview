@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { ParseResultType } from "@/types/user.types";
 import { chatSession } from "@/utils/gemeniAIMode";
 import { Mic } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -9,7 +10,7 @@ import toast from "react-hot-toast";
 const SpeechToTextComponent = ({
   currentQuestion,
 }: {
-  currentQuestion: string;
+  currentQuestion?: ParseResultType;
 }) => {
   const [userAns, setUserAns] = useState("");
   const [_, setTranscripts] = useState<string[]>([]);
@@ -60,7 +61,8 @@ const SpeechToTextComponent = ({
   };
 
   const handleClickAns = async () => {
-    console.log("Recorded Answer:", userAns);
+    console.log("currentQuestion : ", currentQuestion);
+    if (currentQuestion) currentQuestion.isCompleted = true;
     setUserAns("");
     results.length = 0;
     if (userAns.length < 10) {
@@ -99,6 +101,7 @@ const SpeechToTextComponent = ({
     <div className="flex justify-center item-center mt-10 shadow-2xl my-7 border-l-2 p-10">
       <div className="flex flex-col gap-4 w-full">
         <Button
+          disabled={currentQuestion?.isCompleted}
           className={`mt-10 w-full cursor-pointer shadow-xl border-2 ${
             isRecording && "py-7"
           }`}
@@ -115,7 +118,12 @@ const SpeechToTextComponent = ({
           )}
         </Button>
 
-        <Button onClick={handleClickAns} className="w-full" variant="outline">
+        <Button
+          disabled={currentQuestion?.isCompleted}
+          onClick={handleClickAns}
+          className="w-full"
+          variant="outline"
+        >
           Show Answer
         </Button>
 

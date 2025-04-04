@@ -3,7 +3,7 @@ import { Toaster } from "react-hot-toast";
 
 function dashLeyout({ children }: { children: React.ReactNode }) {
   return (
-    <div >
+    <div>
       {children}
       <Toaster position="bottom-center" reverseOrder={false} />
     </div>
