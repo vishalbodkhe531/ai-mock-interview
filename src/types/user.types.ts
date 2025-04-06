@@ -14,6 +14,10 @@ export interface ParseResultType {
   question: string;
   isCompleted: boolean;
   answer: string;
+  aifeed?: {
+    rating: number;
+    feedback: string;
+  };
 }
 
 export interface PropesType {

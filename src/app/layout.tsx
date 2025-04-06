@@ -39,9 +39,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <header className="flex justify-between items-center p-4 gap-4 h-16">
-              <Header />
-            </header>
+            <Header />
             <div className="mx-5 md:mc-20 lg:mx-36 ">{children}</div>
           </ThemeProvider>
         </body>

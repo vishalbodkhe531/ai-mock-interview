@@ -8,8 +8,6 @@ export async function POST(req: Request) {
     const { parseResult, userInfo } = await req.json();
     const { userId, userName, profilePic } = userInfo;
 
-    console.log("parseResult : ", parseResult);
-
     const isUserExist = await prisma.user.findUnique({
       where: {
         uid: userId,

@@ -7,6 +7,17 @@ import { useEffect, useState } from "react";
 import useSpeechToText from "react-hook-speech-to-text";
 import toast from "react-hot-toast";
 
+type QuestionFeedback = {
+  currentQuestion: {
+    answer: string;
+    question: string;
+    isCompleted: boolean;
+    question_number: number;
+  };
+  feedback: string;
+  rating: number;
+};
+
 const SpeechToTextComponent = ({
   currentQuestion,
 }: {
@@ -61,35 +72,44 @@ const SpeechToTextComponent = ({
   };
 
   const handleClickAns = async () => {
-    console.log("currentQuestion : ", currentQuestion);
     if (currentQuestion) currentQuestion.isCompleted = true;
-    setUserAns("");
     results.length = 0;
-    if (userAns.length < 10) {
-      return toast.error("Speak atleast 10 words");
+
+    if (userAns.trim().split(" ").length < 10) {
+      return toast.error("Speak at least 10 words");
     }
 
-    const feedbackPromt = `Question ${currentQuestion} : ${userAns}, Depen on the question and answer, give me the feedback or rating out of 10 on the answer as area of improvement or good points in just 2-3 lines to improve the answer in JSON format with rating field and feedback field`;
+    const questionText = currentQuestion?.question || "Unknown question";
 
-    const result = await chatSession.sendMessage(feedbackPromt);
+    const feedbackPromt = `Question: "${questionText}"\nAnswer: "${userAns}"\n\nBased on the answer, give feedback and a rating out of 10. Respond in JSON format like:\n{\n  "rating": 8,\n  "feedback": "Your answer was clear but could include more real-world examples."\n}`;
 
-    if (!result || !result.response) {
-      toast.error("Something went wrong..!! Please try again.");
-      return;
-    }
-
-    let parseResult;
     try {
+      const result = await chatSession.sendMessage(feedbackPromt);
+
+      if (!result || !result.response) {
+        toast.error("Something went wrong..!! Please try again.");
+        return;
+      }
+
       const textResponse = await result.response.text();
+
       const formattedResponse = textResponse
-        .replace("```json", "")
-        .replace("```", "");
-      parseResult = JSON.parse(formattedResponse);
-      console.log("parseResult : ", parseResult);
-    } catch (jsonError) {
-      console.error("Error parsing AI response:", jsonError);
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+      const parsed = JSON.parse(formattedResponse);
+
+      if (currentQuestion) {
+        currentQuestion.aifeed = parsed;
+        currentQuestion.isCompleted = true;
+      }
+
+      console.log("currentQuestion : ", currentQuestion);
+      setUserAns("");
+    } catch (err) {
+      console.error("Error parsing AI response:", err);
       toast.error("Failed to parse AI response. Please try again.");
-      return;
     }
   };
 
@@ -130,6 +150,17 @@ const SpeechToTextComponent = ({
         {interimResult && (
           <div className="mt-4 p-4 border rounded-md bg-gray-50">
             <p className="text-gray-600">Current: {interimResult}</p>
+          </div>
+        )}
+
+        {currentQuestion?.isCompleted && currentQuestion?.aifeed && (
+          <div className="mt-6 p-4 border rounded-md bg-green-50 shadow">
+            <p className="font-semibold">
+              Rating: {currentQuestion?.aifeed?.rating} / 10
+            </p>
+            <p className="text-gray-700 mt-2">
+              {currentQuestion?.aifeed?.feedback}
+            </p>
           </div>
         )}
       </div>

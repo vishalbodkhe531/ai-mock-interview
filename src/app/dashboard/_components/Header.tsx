@@ -12,6 +12,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { IoHome } from "react-icons/io5";
+import { MdDashboard } from "react-icons/md";
+import { FaQuestion } from "react-icons/fa";
+import { HiSparkles } from "react-icons/hi";
 
 function Header() {
   const path = usePathname();
@@ -22,29 +26,52 @@ function Header() {
     setMounted(true);
   }, []);
 
-  // Ensure the theme is only applied after mounting
   if (!mounted) return null;
 
-  const activeTextColor = theme === "dark" ? "text-red-400" : "text-blue-700";
+  const activeTextColor =
+    theme === "dark" ? "text-indigo-300" : "text-blue-500";
+
   const hoverTextColor =
-    theme === "dark" ? "hover:text-green-300" : "hover:text-green-700";
+    theme === "dark" ? "hover:text-indigo-300" : "hover:text-blue-400";
 
   return (
-    <div className="flex p-4 items-center justify-between bg-secondary shadow-lg w-full">
-      <Image src={"/logo.svg"} height={50} alt="logo" width={50} />
-      <ul className="hidden md:flex justify-center gap-6 items-center w-[50%]">
+    <div className="bg-secondary flex justify-between items-center w-full">
+      <Image src={"/logo.png"} height={85} alt="logo" width={85} />
+      <ul className="hidden md:flex  justify-center gap-6 items-center w-[50%] font-medium tracking-wide">
         {[
-          { href: "/", label: "Home" },
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/questions", label: "Questions" },
-          { href: "/upgrade", label: "Upgrade" },
-        ].map(({ href, label }) => (
+          {
+            href: "/",
+            label: "Home",
+            icon: <IoHome className="inline-block mr-1 text-lg" />,
+          },
+          {
+            href: "/dashboard",
+            label: "Dashboard",
+            icon: <MdDashboard className="inline-block mr-1 text-lg" />,
+          },
+          {
+            href: "/questions",
+            label: "Questions",
+            icon: <FaQuestion className="inline-block mr-1 text-lg" />,
+          },
+          {
+            href: "/upgrade",
+            label: "Upgrade",
+            icon: <HiSparkles className="inline-block mr-1 text-lg" />,
+          },
+        ].map(({ href, label, icon }) => (
           <Link href={href} key={href}>
             <li
-              className={`cursor-pointer ${hoverTextColor} ${
-                path === href ? `${activeTextColor} font-bold` : ""
-              }`}
+              className={`cursor-pointer ${hoverTextColor} transition-colors duration-200 ease-in-out
+                ${
+                  path === href
+                    ? `${activeTextColor} font-semibold`
+                    : theme === "dark"
+                    ? "text-gray-300"
+                    : "text-gray-700"
+                } flex items-center text-sm uppercase tracking-wider`}
             >
+              {icon}
               {label}
             </li>
           </Link>

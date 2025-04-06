@@ -20,8 +20,6 @@ function QuestionSection({
   const [hint, setHint] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  console.log(interviewData);
-
   useEffect(() => {
     if (!params.interviewId) return;
 
@@ -55,6 +53,13 @@ function QuestionSection({
     setIsSpeaking(true);
   }, []);
 
+  const handleQuestionClick = (item: ParseResultType, idx: number) => {
+    speechSynthesis.cancel();
+    setCurrentQuestion(item);
+    setActiveQuestionIdx(idx);
+    setIsSpeaking(false);
+  };
+
   if (loading) {
     return <div className="text-center mt-20">Loading...</div>;
   }
@@ -67,11 +72,7 @@ function QuestionSection({
             key={idx}
             className={`cursor-pointer rounded-xl  flex flex-col justify-center items-center text-center 
             `}
-            onClick={() => {
-              speechSynthesis.cancel();
-              setCurrentQuestion(item);
-              setActiveQuestionIdx(idx);
-            }}
+            onClick={() => handleQuestionClick(item, idx)}
           >
             <div className="flex">
               {item.isCompleted ? (
@@ -101,7 +102,7 @@ function QuestionSection({
       {interviewData.length > 0 && (
         <div className="mt-3 font-medium ">
           <div className="flex justify-end my-4">
-            {isSpeaking ? (
+            {interviewData[activeQuestionIdx].isCompleted || isSpeaking ? (
               <VolumeOff
                 size={37}
                 className="cursor-pointer hover:bg-slate-200 p-2 rounded-full"
@@ -119,17 +120,17 @@ function QuestionSection({
                 }
               />
             )}
-            {hint ? (
-              <LightbulbOffIcon
-                size={37}
-                className="cursor-pointer hover:bg-slate-200 p-2 rounded-full"
-                onClick={() => setHint(false)}
-              />
-            ) : (
+            {!interviewData[activeQuestionIdx].isCompleted && !hint ? (
               <Lightbulb
                 size={37}
                 className="cursor-pointer hover:bg-slate-200 p-2 rounded-full"
                 onClick={() => setHint(true)}
+              />
+            ) : (
+              <LightbulbOffIcon
+                size={37}
+                className="cursor-pointer hover:bg-slate-200 p-2 rounded-full"
+                onClick={() => setHint(false)}
               />
             )}
           </div>

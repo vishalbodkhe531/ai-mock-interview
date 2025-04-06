@@ -15,7 +15,6 @@ export async function GET(
 
     const result = await prisma.mockInterview.findUnique({ where: { id } });
 
-    console.log("result : ", result);
 
     if (!result) {
       return NextResponse.json(

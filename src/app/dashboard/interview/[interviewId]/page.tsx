@@ -12,7 +12,7 @@ function Interview() {
   const [webCamEnable, setWebCamEnable] = useState(false);
 
   return (
-    <div className="mt-10  p-5">
+    <div className="mt-10  p-5 select-none">
       <h1 className="text-center">Let get started</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 mt-10 px-5 gap-6 ">
         <div className="flex h-[65%]  flex-col gap-2 text-sm border-2 bg-yellow-100 text-slate-600 font-semibold p-4 rounded-lg">

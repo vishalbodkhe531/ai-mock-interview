@@ -122,7 +122,7 @@ function AddNewInterview() {
   };
 
   return (
-    <div>
+    <div className="w-full">
       <div
         className="p-10 border rounded-xl bg-secondary hover:scale-105 hover:shadow-xl cursor-pointer transition-all"
         onClick={() => setOpenDailog(true)}
